@@ -8,9 +8,12 @@
 
 #define CTRL_KEY(k) ((k)&0x1f)
 #define MIN_VERSION "0.0.1"
+#define MIN_TAP_STOP 8
 
 /* Data Buffer */
 typedef struct erow {
+  int rsize;
+  char *render;
   int size;
   char *chars;
 } erow;
@@ -48,6 +51,8 @@ enum editorMode { NORMAL_MODE = 0, INSERT_MODE, VISUAL_MODE };
 void initEditor(editorConfig *);
 int getCursorPosition(int *, int *);
 int getWindowSize(editorConfig *);
+int editorRowCxToRx(erow *, int);
+void editorUpdateRow(erow *);
 void editorAppendRow(char *, size_t, editorConfig *);
 void editorOpen(char *, editorConfig *);
 int editorReadInput(editorConfig *);

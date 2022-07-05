@@ -15,6 +15,7 @@
 void initEditor(editorConfig *E) {
   E->cx = 0;
   E->cy = 0;
+  E->rx = 0;
   E->row = NULL;
   E->numrows = 0;
   E->rowoff = 0;
@@ -52,6 +53,52 @@ int getWindowSize(editorConfig *E) {
   }
 }
 
+int editorRowCxToRx(erow *row, int cx) {
+  int rx = 0;
+  int j = 0;
+  for (j = 0; j < cx; j++) {
+    if (row->chars[j] == '\t') {
+      /* count how many bytes do I
+      have to move to the right to get
+      to one byte before the tab stop,
+      One can use this technique to implement
+      varios jumping scheme, such as what "w"
+      in normal mode in VIM does. */
+      rx += (MIN_TAP_STOP - 1) - (rx % MIN_TAP_STOP);
+    }
+    rx++;
+  }
+  return rx;
+}
+
+void editorUpdateRow(erow *row) {
+  int tabs = 0;
+  int j;
+
+  for (j = 0; j < row->size; j++) {
+    if (row->chars[j] == '\t') tabs++;
+  }
+
+  free(row->render);
+  row->render = malloc(row->size + tabs * MIN_TAP_STOP + 1);
+
+  /* core idea: put every TAB on tab stop, which is
+  index that are divisible by 8, then use editorRowCxToRx()
+  to move to tab stop position if encountered a TAB */
+  int idx = 0;
+  for (j = 0; j < row->size; j++) {
+    if (row->chars[j] == '\t') {
+      row->render[idx++] = ' ';
+      while (idx % MIN_TAP_STOP != 0) row->render[idx++] = ' ';
+    } else {
+      row->render[idx++] = row->chars[j];
+    }
+  }
+
+  row->render[idx] = '\0';
+  row->rsize = idx;
+}
+
 void editorAppendRow(char *s, size_t len, editorConfig *E) {
   E->row = realloc(E->row, sizeof(erow) * (E->numrows + 1));
 
@@ -60,6 +107,9 @@ void editorAppendRow(char *s, size_t len, editorConfig *E) {
   E->row[at].chars = malloc(len + 1);
   memcpy(E->row[at].chars, s, len);
   E->row[at].chars[len] = '\0';
+
+  editorUpdateRow(&E->row[at]);
+
   E->numrows++;
 }
 
@@ -228,17 +278,23 @@ void editorProcessEvent(editorConfig *E) {
 }
 
 void editorScroll(editorConfig *E) {
+  // TAB
+  E->rx = 0;
+  if (E->cy < E->numrows) {
+    E->rx = editorRowCxToRx(&E->row[E->cy], E->cx);
+  }
+
   if (E->cy < E->rowoff) {
     E->rowoff = E->cy;
   }
   if (E->cy >= E->rowoff + E->screenrows) {
     E->rowoff = E->cy - E->screenrows;
   }
-  if (E->cx < E->coloff) {
-    E->coloff = E->cx;
+  if (E->rx < E->coloff) {
+    E->coloff = E->rx;
   }
-  if (E->cx >= E->coloff + E->screencols) {
-    E->coloff = E->cx - E->screencols;
+  if (E->rx >= E->coloff + E->screencols) {
+    E->coloff = E->rx - E->screencols;
   }
 }
 
@@ -268,10 +324,10 @@ void editorDrawRaws(editorConfig *E, abuf *ab) {
         abAppend(ab, "~", 3);
       }
     } else {
-      int len = E->row[filerow].size - E->coloff;
+      int len = E->row[filerow].rsize - E->coloff;
       if (len < 0) len = 0;
       if (len > E->screencols) len = E->screencols;
-      abAppend(ab, &E->row[filerow].chars[E->coloff], len);
+      abAppend(ab, &E->row[filerow].render[E->coloff], len);
     }
 
     abAppend(ab, "\x1b[K", 3); /* Erases from the current cursor position to
@@ -296,7 +352,7 @@ void editorRefreshScreen(editorConfig *E) {
 
   char buf[32];
   snprintf(buf, sizeof(buf), "\x1b[%d;%dH", (E->cy - E->rowoff) + 1,
-           (E->cx - E->coloff) + 1);
+           (E->rx - E->coloff) + 1);
   abAppend(&ab, buf, strlen(buf));
 
   abAppend(&ab, "\x1b[?25h", 6);

@@ -4,5 +4,5 @@ This text editor is inspired by [kilo-tutorial](https://github.com/snaptoken/kil
 
 ## Features
 
-- Adjust window size dynamically.
-- Mouse support
+- [x] Adjust window size dynamically.
+- [ ] Mouse support
