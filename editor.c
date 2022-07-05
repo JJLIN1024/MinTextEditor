@@ -165,19 +165,6 @@ int editorReadInput(editorConfig *E) {
               return END_KEY;
           }
         }
-      } else if (seq[1] == '[') {
-        /* TODO: catch mouse event */
-        // char temp;
-        // if (read(STDIN_FILENO, &temp, 1) != 1) return '\x1b';
-        // if (temp != '<') return '\x1b';
-        // char buf[32];
-        // unsigned int i = 0;
-        // while (i < sizeof(buf) - 1) {
-        //   if (read(STDIN_FILENO, &buf[i], 1) != 1) break;
-        //   i++;
-        // }
-        // buf[i] = '\0';
-        // if (sscanf(&buf, "%d;%d;", rows, cols) != 2) return '\x1b';
       } else {
         switch (seq[1]) {
           case 'A':
@@ -259,13 +246,21 @@ void editorProcessEvent(editorConfig *E) {
       E->cx = 0;
       break;
     case END_KEY:
-      E->cx = E->screencols - 1;
+      if (E->cy < E->numrows) {
+        E->cx = E->row[E->cy].size;
+      }
       break;
     case PAGE_UP:
     case PAGE_DOWN: {
+      if (c == PAGE_UP) {
+        E->cy = E->rowoff;
+      } else if (c == PAGE_DOWN) {
+        E->cy = E->rowoff + E->screenrows + 1;
+        if (E->cy > E->numrows) E->cy = E->numrows;
+      }
       int times = E->screenrows;
       while (times--) editorMoveCursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN, E);
-    } break;
+    }
     case ARROW_UP:
     case ARROW_DOWN:
     case ARROW_LEFT:

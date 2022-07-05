@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
   }
 
   enableRawMode(&E.orig_termios);
-  enableMouseEvent();
+  // enableMouseEvent();
   initEditor(&E);
 
   if (argc == 2) {
@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
     editorProcessEvent(&E);
   }
 
-  disableMouseEvent();
+  // disableMouseEvent();
   disableRawMode(&E.orig_termios);
 
   return 0;
