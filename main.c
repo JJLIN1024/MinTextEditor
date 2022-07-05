@@ -13,6 +13,8 @@
 
 editorConfig E;
 
+/* error: resizing window too often(?) cause segmentation fault */
+/* TODO: error handling */
 static void sigwinchHandler(int sig) {
   if (SIGWINCH == sig) {
     getWindowSize(&E);
@@ -26,6 +28,7 @@ int main(int argc, char **argv) {
   }
 
   enableRawMode(&E.orig_termios);
+  enableMouseEvent();
   initEditor(&E);
 
   if (argc == 2) {
@@ -35,11 +38,15 @@ int main(int argc, char **argv) {
   /* listen for Window Size change */
   signal(SIGWINCH, sigwinchHandler);
 
+  // event polling ?
+
   while (1) {
     editorRefreshScreen(&E);
-    editorProcessKeypress(&E);
+    editorProcessEvent(&E);
   }
 
+  disableMouseEvent();
   disableRawMode(&E.orig_termios);
+
   return 0;
 }

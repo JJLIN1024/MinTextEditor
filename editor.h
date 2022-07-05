@@ -29,7 +29,7 @@ typedef struct editorConfig {
   struct termios orig_termios;
 } editorConfig;
 
-enum editorKey {
+enum editorEvent {
   ARROW_LEFT = 1000,
   ARROW_RIGHT,
   ARROW_UP,
@@ -39,7 +39,8 @@ enum editorKey {
   END_KEY,
   PAGE_UP,
   PAGE_DOWN,
-
+  MOUSE_UP,
+  MOUSE_DOWN
 };
 
 enum editorMode { NORMAL_MODE = 0, INSERT_MODE, VISUAL_MODE };
@@ -49,9 +50,9 @@ int getCursorPosition(int *, int *);
 int getWindowSize(editorConfig *);
 void editorAppendRow(char *, size_t, editorConfig *);
 void editorOpen(char *, editorConfig *);
-int editorReadKey(editorConfig *);
+int editorReadInput(editorConfig *);
 void editorMoveCursor(int, editorConfig *);
-void editorProcessKeypress(editorConfig *);
+void editorProcessEvent(editorConfig *);
 void editorDrawRaws(editorConfig *, abuf *);
 void editorRefreshScreen(editorConfig *);
 #endif

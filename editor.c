@@ -83,7 +83,7 @@ void editorOpen(char *filename, editorConfig *E) {
   fclose(fp);
 }
 
-int editorReadKey(editorConfig *E) {
+int editorReadInput(editorConfig *E) {
   char c;
   int rc;
   while ((rc = read(STDIN_FILENO, &c, 1)) != 1) {
@@ -115,6 +115,19 @@ int editorReadKey(editorConfig *E) {
               return END_KEY;
           }
         }
+      } else if (seq[1] == '[') {
+        /* TODO: catch mouse event */
+        // char temp;
+        // if (read(STDIN_FILENO, &temp, 1) != 1) return '\x1b';
+        // if (temp != '<') return '\x1b';
+        // char buf[32];
+        // unsigned int i = 0;
+        // while (i < sizeof(buf) - 1) {
+        //   if (read(STDIN_FILENO, &buf[i], 1) != 1) break;
+        //   i++;
+        // }
+        // buf[i] = '\0';
+        // if (sscanf(&buf, "%d;%d;", rows, cols) != 2) return '\x1b';
       } else {
         switch (seq[1]) {
           case 'A':
@@ -183,8 +196,8 @@ void editorMoveCursor(int key, editorConfig *E) {
   }
 }
 
-void editorProcessKeypress(editorConfig *E) {
-  int c = editorReadKey(E);
+void editorProcessEvent(editorConfig *E) {
+  int c = editorReadInput(E);
 
   switch (c) {
     case CTRL_KEY('q'):

@@ -33,3 +33,6 @@ void disableRawMode(struct termios *orig_termios) {
   check(tcsetattr(STDIN_FILENO, TCSAFLUSH, orig_termios) == -1,
         "disableRawMode");
 }
+
+void enableMouseEvent() { write(STDOUT_FILENO, "\e[?1000;1006;1015h", 24); };
+void disableMouseEvent() { write(STDOUT_FILENO, "\e[?1000;1006;1015l", 24); };
