@@ -17,6 +17,8 @@ void initEditor(editorConfig *E) {
   E->cy = 0;
   E->row = NULL;
   E->numrows = 0;
+  E->rowoff = 0;
+  E->coloff = 0;
   /* TODO */
   E->mode = NORMAL_MODE;
   check(getWindowSize(E) == -1, "getWindowSize");
@@ -48,6 +50,37 @@ int getWindowSize(editorConfig *E) {
     E->screenrows = ws.ws_row;
     return 0;
   }
+}
+
+void editorAppendRow(char *s, size_t len, editorConfig *E) {
+  E->row = realloc(E->row, sizeof(erow) * (E->numrows + 1));
+
+  int at = E->numrows;
+  E->row[at].size = len;
+  E->row[at].chars = malloc(len + 1);
+  memcpy(E->row[at].chars, s, len);
+  E->row[at].chars[len] = '\0';
+  E->numrows++;
+}
+
+void editorOpen(char *filename, editorConfig *E) {
+  FILE *fp = fopen(filename, "r");
+  check(!fp, "fopen");
+
+  char *line = NULL;
+  size_t linecap = 0;
+  ssize_t linelen;
+
+  while ((linelen = getline(&line, &linecap, fp)) != -1) {
+    while (linelen > 0 &&
+           (line[linelen - 1] == '\n' || line[linelen - 1] == '\r')) {
+      linelen--;
+    }
+    editorAppendRow(line, linelen, E);
+  }
+
+  free(line);
+  fclose(fp);
 }
 
 int editorReadKey(editorConfig *E) {
@@ -113,19 +146,40 @@ int editorReadKey(editorConfig *E) {
 }
 
 void editorMoveCursor(int key, editorConfig *E) {
+  erow *row = (E->cy >= E->numrows) ? NULL : &E->row[E->cy];
   switch (key) {
     case ARROW_LEFT:
-      E->cx--;
+      if (E->cx != 0) {
+        E->cx--;
+      } else if (E->cy > 0) {
+        E->cy--;
+        E->cx = E->row[E->cy].size;
+      }
       break;
     case ARROW_RIGHT:
-      E->cx++;
+      if (row && E->cx < row->size) {
+        E->cx++;
+      } else if (row && E->cx == row->size) {
+        E->cy++;
+        E->cx = 0;
+      }
       break;
     case ARROW_UP:
-      E->cy--;
+      if (E->cy != 0) {
+        E->cy--;
+      }
       break;
     case ARROW_DOWN:
-      E->cy++;
+      if (E->cy < E->numrows) {
+        E->cy++;
+      }
       break;
+  }
+
+  row = (E->cy >= E->numrows) ? NULL : &E->row[E->cy];
+  int rowlen = row ? row->size : 0;
+  if (E->cx > rowlen) {
+    E->cx = rowlen;
   }
 }
 
@@ -160,12 +214,28 @@ void editorProcessKeypress(editorConfig *E) {
   }
 }
 
+void editorScroll(editorConfig *E) {
+  if (E->cy < E->rowoff) {
+    E->rowoff = E->cy;
+  }
+  if (E->cy >= E->rowoff + E->screenrows) {
+    E->rowoff = E->cy - E->screenrows;
+  }
+  if (E->cx < E->coloff) {
+    E->coloff = E->cx;
+  }
+  if (E->cx >= E->coloff + E->screencols) {
+    E->coloff = E->cx - E->screencols;
+  }
+}
+
 void editorDrawRaws(editorConfig *E, abuf *ab) {
   int y;
   /* TODO: put more information into welcoming message, e.g. help, how to
    * quit..., see what vim & nvim does!! especially when window size change or
    * too small*/
   for (y = 0; y < E->screenrows; y++) {
+    int filerow = y + E->rowoff;
     if (y >= E->numrows) {
       if (E->numrows == 0 && y == E->screenrows / 3) {
         char welcome[80];
@@ -185,9 +255,10 @@ void editorDrawRaws(editorConfig *E, abuf *ab) {
         abAppend(ab, "~", 3);
       }
     } else {
-      int len = E->row[y].size;
+      int len = E->row[filerow].size - E->coloff;
+      if (len < 0) len = 0;
       if (len > E->screencols) len = E->screencols;
-      abAppend(ab, E->row[y].chars, len);
+      abAppend(ab, &E->row[filerow].chars[E->coloff], len);
     }
 
     abAppend(ab, "\x1b[K", 3); /* Erases from the current cursor position to
@@ -199,15 +270,20 @@ void editorDrawRaws(editorConfig *E, abuf *ab) {
 }
 
 void editorRefreshScreen(editorConfig *E) {
+  editorScroll(E);
+
   abuf ab = ABUF_INIT;
   abAppend(&ab, "\x1b[?25l", 6);
 
+  /* Set cursor back to home. Do NOT comment out this line, will cause the whole
+   * program to break :( */
   abAppend(&ab, "\x1b[H", 3);
 
   editorDrawRaws(E, &ab);
 
   char buf[32];
-  snprintf(buf, sizeof(buf), "\x1b[%d;%dH", E->cy + 1, E->cx + 1);
+  snprintf(buf, sizeof(buf), "\x1b[%d;%dH", (E->cy - E->rowoff) + 1,
+           (E->cx - E->coloff) + 1);
   abAppend(&ab, buf, strlen(buf));
 
   abAppend(&ab, "\x1b[?25h", 6);

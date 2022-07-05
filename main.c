@@ -28,6 +28,10 @@ int main(int argc, char **argv) {
   enableRawMode(&E.orig_termios);
   initEditor(&E);
 
+  if (argc == 2) {
+    editorOpen(argv[1], &E);
+  }
+
   /* listen for Window Size change */
   signal(SIGWINCH, sigwinchHandler);
 
