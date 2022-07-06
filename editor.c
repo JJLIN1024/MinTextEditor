@@ -3,11 +3,13 @@
 #include <ctype.h>
 #include <errno.h>
 #include <signal.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <termios.h> /* winsize */
+#include <time.h>
 #include <unistd.h>
 
 #include "dbg.h"
@@ -20,9 +22,14 @@ void initEditor(editorConfig *E) {
   E->numrows = 0;
   E->rowoff = 0;
   E->coloff = 0;
+  E->filename = NULL;
+  E->statusmsg[0] = '\0';
+  E->statusmsg_time = 0;
   /* TODO */
   E->mode = NORMAL_MODE;
   check(getWindowSize(E) == -1, "getWindowSize");
+
+  E->screenrows -= 2;
 }
 
 int getCursorPosition(int *rows, int *cols) {
@@ -114,6 +121,9 @@ void editorAppendRow(char *s, size_t len, editorConfig *E) {
 }
 
 void editorOpen(char *filename, editorConfig *E) {
+  free(E->filename);
+  E->filename = strdup(filename);
+
   FILE *fp = fopen(filename, "r");
   check(!fp, "fopen");
 
@@ -283,23 +293,29 @@ void editorScroll(editorConfig *E) {
     E->rowoff = E->cy;
   }
   if (E->cy >= E->rowoff + E->screenrows) {
-    E->rowoff = E->cy - E->screenrows;
+    E->rowoff = E->cy - E->screenrows + 1;
   }
   if (E->rx < E->coloff) {
     E->coloff = E->rx;
   }
   if (E->rx >= E->coloff + E->screencols) {
-    E->coloff = E->rx - E->screencols;
+    E->coloff = E->rx - E->screencols + 1;
   }
 }
 
 void editorDrawRaws(editorConfig *E, abuf *ab) {
+  /* TODO: a extra line will be displayed at the end
+  of the file, fix it. e.g: 9/8 in the status bar.
+  should be 8/8. Related: cx, numrows */
   int y;
   /* TODO: put more information into welcoming message, e.g. help, how to
    * quit..., see what vim & nvim does!! especially when window size change or
    * too small*/
   for (y = 0; y < E->screenrows; y++) {
     int filerow = y + E->rowoff;
+
+    /* TODO: turn off "~" displayed when file is small,
+    which does not fill the entire screen */
     if (y >= E->numrows) {
       if (E->numrows == 0 && y == E->screenrows / 3) {
         char welcome[80];
@@ -319,6 +335,27 @@ void editorDrawRaws(editorConfig *E, abuf *ab) {
         abAppend(ab, "~", 3);
       }
     } else {
+      /* Fix size line number section,
+      number are right-aligned */
+      /* TODO: cursor position, cursor are not suppose to
+      scroll on line number and its section, and padding */
+      /* color */
+      // abAppend(ab, "\x1b[7m", 4);
+
+      // char lineNumber[10];
+      // int numberLen = snprintf(lineNumber, sizeof(lineNumber), "%d",
+      // filerow); int lineLen = MIN_LINE_NUMBER_SECTION_LEN; while (lineLen-- >
+      // numberLen + 1) {
+      //   abAppend(ab, " ", 1);
+      // }
+      // abAppend(ab, lineNumber, numberLen);
+      // /* revert back to original color */
+      // abAppend(ab, "\x1b[m", 3);
+
+      // abAppend(ab, " ", 1);
+
+      /* TODO: rightmost content are missing */
+      /* adjust screencol and coloff */
       int len = E->row[filerow].rsize - E->coloff;
       if (len < 0) len = 0;
       if (len > E->screencols) len = E->screencols;
@@ -327,10 +364,47 @@ void editorDrawRaws(editorConfig *E, abuf *ab) {
 
     abAppend(ab, "\x1b[K", 3); /* Erases from the current cursor position to
                               the end of the current line */
-    if (y < E->screenrows - 1) {
-      abAppend(ab, "\r\n", 2);
+    abAppend(ab, "\r\n", 2);
+  }
+}
+
+void editorDrawStatusBar(editorConfig *E, abuf *ab) {
+  abAppend(ab, "\x1b[7m", 4);
+
+  char status[80], rstatus[80];
+  int len = snprintf(status, sizeof(status), "%.20s - %d lines",
+                     E->filename ? E->filename : "[No Name]", E->numrows);
+  int rlen = snprintf(rstatus, sizeof(rstatus), "%d/%d", E->cy + 1, E->numrows);
+  if (len > E->screencols) len = E->screencols;
+  abAppend(ab, status, len);
+
+  while (len < E->screencols) {
+    if (E->screencols - len == rlen) {
+      abAppend(ab, rstatus, rlen);
+      break;
+    } else {
+      abAppend(ab, " ", 1);
+      len++;
     }
   }
+  abAppend(ab, "\x1b[m", 3);
+  abAppend(ab, "\r\n", 2);
+}
+
+void editorDrawMessageBar(editorConfig *E, abuf *ab) {
+  abAppend(ab, "\x1b[K", 3);
+  int msglen = strlen(E->statusmsg);
+  if (msglen > E->screencols) msglen = E->screencols;
+  if (msglen && time(NULL) - E->statusmsg_time < 5)
+    abAppend(ab, E->statusmsg, msglen);
+}
+
+void editorSetStatusMessage(editorConfig *E, const char *fmt, ...) {
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(E->statusmsg, sizeof(E->statusmsg), fmt, ap);
+  va_end(ap);
+  E->statusmsg_time = time(NULL);
 }
 
 void editorRefreshScreen(editorConfig *E) {
@@ -344,6 +418,8 @@ void editorRefreshScreen(editorConfig *E) {
   abAppend(&ab, "\x1b[H", 3);
 
   editorDrawRaws(E, &ab);
+  editorDrawStatusBar(E, &ab);
+  editorDrawMessageBar(E, &ab);
 
   char buf[32];
   snprintf(buf, sizeof(buf), "\x1b[%d;%dH", (E->cy - E->rowoff) + 1,

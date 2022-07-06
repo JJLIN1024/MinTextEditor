@@ -13,7 +13,8 @@
 
 editorConfig E;
 
-/* error: resizing window too often(?) cause segmentation fault */
+/* error: resizing window too often(?) cause segmentation fault
+some row content will be missing, after resizing */
 /* TODO: error handling */
 static void sigwinchHandler(int sig) {
   if (SIGWINCH == sig) {
@@ -37,8 +38,9 @@ int main(int argc, char **argv) {
 
   /* listen for Window Size change */
   signal(SIGWINCH, sigwinchHandler);
-
   // event polling ?
+
+  editorSetStatusMessage(&E, "HELP: Ctrl-Q = quit");
 
   while (1) {
     editorRefreshScreen(&E);

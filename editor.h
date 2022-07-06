@@ -9,7 +9,7 @@
 #define CTRL_KEY(k) ((k)&0x1f)
 #define MIN_VERSION "0.0.1"
 #define MIN_TAP_STOP 8
-
+#define MIN_LINE_NUMBER_SECTION_LEN 5
 /* Data Buffer */
 typedef struct erow {
   int rsize;
@@ -29,6 +29,8 @@ typedef struct editorConfig {
   int numrows;
   erow *row;
   char *filename;
+  char statusmsg[80];
+  time_t statusmsg_time;
   struct termios orig_termios;
 } editorConfig;
 
@@ -59,5 +61,8 @@ int editorReadInput(editorConfig *);
 void editorMoveCursor(int, editorConfig *);
 void editorProcessEvent(editorConfig *);
 void editorDrawRaws(editorConfig *, abuf *);
+void editorDrawStatusBar(editorConfig *, abuf *);
+void editorSetStatusMessage(editorConfig *, const char *, ...);
+void editorDrawMessageBar(editorConfig *, abuf *);
 void editorRefreshScreen(editorConfig *);
 #endif
