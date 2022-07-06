@@ -2,6 +2,13 @@
 
 This text editor is inspired by [kilo-tutorial](https://github.com/snaptoken/kilo-tutorial), this project follows Google coding styles using clang-format.
 
+## Usage
+
+1. clone this repository into your desired location, e.g. `dir`.
+2. `cd dir`
+3. `make`
+4. `./min <file to open>`, `<file to open>` is optional.
+
 ## Features
 
 - [x] Adjust window size dynamically.
