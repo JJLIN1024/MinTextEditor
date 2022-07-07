@@ -9,6 +9,7 @@
 #include "data.h"
 #include "dbg.h"
 #include "editor.h"
+#include "render.h"
 
 void initEditor(editorConfig* E) {
   E->mode = NORMAL_MODE;
@@ -89,27 +90,27 @@ void editorOpen(editorConfig* E, char* filename) {
   E->dirty = 0;
 }
 
-// void editorSave(editorConfig* E) {
-//   /* TODO: more advance saving technique,
-//   write to a temp file, then rename it as current file */
-//   if (E->filename == NULL)
-//     return;
-//   int len;
-//   char* buf = editorRowsToString(E, &len);
+void editorSave(editorConfig* E) {
+  /* TODO: more advance saving technique,
+  write to a temp file, then rename it as current file */
+  if (E->filename == NULL)
+    return;
+  int len;
+  char* buf = rowsToString(E, &len);
 
-//   int fd = open(E->filename, O_RDWR | O_CREAT, 0644);
-//   if (fd != -1) {
-//     if (ftruncate(fd, len) != -1) {
-//       if (write(fd, buf, len) == len) {
-//         close(fd);
-//         free(buf);
-//         E->dirty = 0;
-//         editorSetStatusMessage(E, "%d bytes written to disk", len);
-//         return;
-//       }
-//     }
-//     close(fd);
-//   }
-//   free(buf);
-//   editorSetStatusMessage(E, "Can't save! I/O error: %s", strerror(errno));
-// }
+  int fd = open(E->filename, O_RDWR | O_CREAT, 0644);
+  if (fd != -1) {
+    if (ftruncate(fd, len) != -1) {
+      if (write(fd, buf, len) == len) {
+        close(fd);
+        free(buf);
+        E->dirty = 0;
+        setStatusMessage(E, "%d bytes written to disk", len);
+        return;
+      }
+    }
+    close(fd);
+  }
+  free(buf);
+  setStatusMessage(E, "Can't save! I/O error: %s", strerror(errno));
+}

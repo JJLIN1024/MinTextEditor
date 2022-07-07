@@ -12,13 +12,15 @@ $(objects): dbg.h
 
 terminal.o: terminal.h editor.h
 
-editor.o: data.h editor.h
+editor.o: data.h render.h editor.h
 
 render.o: editor.h render.h
 
-event.o: editor.h event.h
+event.o: editor.h data.h cursor.h event.h
 
 cursor.o: editor.h cursor.h
+
+data.o: editor.h data.h
 
 clean:
 	rm $(target) $(objects)

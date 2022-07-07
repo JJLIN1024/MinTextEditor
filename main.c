@@ -15,9 +15,6 @@
 
 editorConfig E;
 
-/* error: resizing window too often(?) cause segmentation fault
-some row content will be missing, after resizing */
-/* TODO: error handling */
 static void sigwinchHandler(int sig) {
   if (SIGWINCH == sig) {
     char* filename = E.filename;

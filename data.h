@@ -3,22 +3,23 @@
 
 #include "editor.h"
 
-#define TAP_STOP 8
+// #define TAP_STOP 8
 
-int rowCxToRx(row*, int);
-
-void insertRow(editorConfig*, int, char*, size_t);
-void delRow(editorConfig*, int);
-
-void rowInsertChar(editorConfig*, row*, int, int);
-void rowAppendString(editorConfig*, row*, char*, size_t);
-void rowDelChar(editorConfig*, row*, int);
-void freerow(row*);
+// int rowCxToRx(row*, int);
 
 void insertChar(editorConfig*, int);
-void delChar(editorConfig*);
+void insertRow(editorConfig*, int, char*, size_t);
+void rowInsertChar(editorConfig*, row*, int, int);
 
-void insertNewLine(editorConfig*);
+// void delRow(editorConfig*, int);
+
+// void rowAppendString(editorConfig*, row*, char*, size_t);
+// void rowDelChar(editorConfig*, row*, int);
+// void freerow(row*);
+
+// void delChar(editorConfig*);
+
+// void insertNewLine(editorConfig*);
 
 char* rowsToString(editorConfig*, int*);
 

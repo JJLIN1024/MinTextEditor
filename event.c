@@ -3,6 +3,7 @@
 #include <unistd.h>
 
 #include "cursor.h"
+#include "data.h"
 #include "dbg.h"
 #include "editor.h"
 #include "event.h"
@@ -34,6 +35,7 @@ int readInput(editorConfig* E) {
             case '4':
               return END_KEY;
             case '5':
+              /* TODO: implement MacOS & Linux support */
               return PAGE_UP;
             case '6':
               return PAGE_DOWN;
@@ -115,7 +117,7 @@ void processEvent(editorConfig* E) {
         break;
 
       case CTRL_KEY('s'):
-        // editorSave(E);
+        editorSave(E);
         break;
 
       case HOME_KEY:
@@ -123,9 +125,9 @@ void processEvent(editorConfig* E) {
         break;
 
       case END_KEY:
-        // if (E->cy < E->numrows) {
-        //   E->cx = E->data[E->cy].size;
-        // }
+        if (E->cy < E->numrows) {
+          E->cx = E->data[E->cy].size - 1;
+        }
         break;
       case BACKSPACE:
       case CTRL_KEY('h'):
@@ -144,7 +146,7 @@ void processEvent(editorConfig* E) {
       case CTRL_KEY('l'):
         break;
       default:
-        // editorInsertChar(E, c);
+
         break;
     }
   } else if (E->mode == INSERT_MODE) {
@@ -158,6 +160,9 @@ void processEvent(editorConfig* E) {
       case ARROW_LEFT:
       case ARROW_RIGHT:
         moveCursor(E, c);
+        break;
+      default:
+        insertChar(E, c);
         break;
     }
 

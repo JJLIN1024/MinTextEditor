@@ -1,5 +1,5 @@
-#ifndef __data_h__
-#define __data_h__
+#ifndef __cursor_h__
+#define __cursor_h__
 
 #include "editor.h"
 
