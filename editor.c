@@ -9,6 +9,7 @@
 #include "data.h"
 #include "dbg.h"
 #include "editor.h"
+#include "event.h"
 #include "render.h"
 
 void initEditor(editorConfig* E) {
@@ -93,8 +94,17 @@ void editorOpen(editorConfig* E, char* filename) {
 void editorSave(editorConfig* E) {
   /* TODO: more advance saving technique,
   write to a temp file, then rename it as current file */
-  if (E->filename == NULL)
+  if (E->dirty == 0) {
+    setStatusMessage(E, "No write since last change.");
     return;
+  }
+  if (E->filename == NULL) {
+    E->filename = promptInfo(E, "Save as: %s (ESC to cancel)");
+    if (E->filename == NULL) {
+      setStatusMessage(E, "Save aborted");
+      return;
+    }
+  }
   int len;
   char* buf = rowsToString(E, &len);
 

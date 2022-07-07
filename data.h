@@ -3,6 +3,8 @@
 
 #include "editor.h"
 
+/* TODO: VIM-like normal mode jumping
+e.g. w for word jump */
 // #define TAP_STOP 8
 
 // int rowCxToRx(row*, int);

@@ -1,5 +1,8 @@
+#include <ctype.h>
 #include <errno.h>
+#include <stdarg.h>
 #include <stdlib.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "cursor.h"
@@ -167,5 +170,47 @@ void processEvent(editorConfig* E) {
     }
 
   } else {
+  }
+}
+
+void setStatusMessage(editorConfig* E, const char* fmt, ...) {
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(E->statusmsg, sizeof(E->statusmsg), fmt, ap);
+  va_end(ap);
+  E->statusmsg_time = time(NULL);
+}
+
+char* promptInfo(editorConfig* E, char* info) {
+  size_t bufsize = 128;
+  char* buf = malloc(bufsize);
+
+  size_t buflen = 0;
+  buf[0] = '\0';
+
+  while (1) {
+    setStatusMessage(E, info, buf);
+    renderScreen(E);
+    int c = readInput(E);
+    if (c == DEL_KEY || c == CTRL_KEY('h') || c == BACKSPACE) {
+      if (buflen != 0)
+        buf[--buflen] = '\0';
+    } else if (c == '\x1b') {
+      setStatusMessage(E, "");
+      free(buf);
+      return NULL;
+    } else if (c == '\r') {
+      if (buflen != 0) {
+        setStatusMessage(E, "");
+        return buf;
+      }
+    } else if (!iscntrl(c) && c < 128) {
+      if (buflen == bufsize - 1) {
+        bufsize *= 2;
+        buf = realloc(buf, bufsize);
+      }
+      buf[buflen++] = c;
+      buf[buflen] = '\0';
+    }
   }
 }

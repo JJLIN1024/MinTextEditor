@@ -1,8 +1,6 @@
-#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 
 #include "dbg.h"
 #include "render.h"
@@ -55,19 +53,11 @@ void renderRows(editorConfig* E, buffer* buf) {
         if (welcomeLen > E->screenrows)
           welcomeLen = E->screenrows;
         int padding = (E->screencols - welcomeLen) / 2;
-        if (padding) {
-          bufferAppend(buf, "~", 1);
-        }
-        padding--;
 
         while (padding--) {
           bufferAppend(buf, " ", 1);
         }
         bufferAppend(buf, welcome, welcomeLen);
-      } else if (E->numrows == 0) {
-        bufferAppend(buf, "~", 1);
-      } else {
-        ;
       }
 
     } else {
@@ -137,14 +127,6 @@ void renderMessageBar(editorConfig* E, buffer* buf) {
 void renderCursor(editorConfig* E) {
   E->rx = E->cx - E->coloff + 1 + LINE_NUMBER_WIDTH;
   E->ry = E->cy - E->rowoff + 1;
-}
-
-void setStatusMessage(editorConfig* E, const char* fmt, ...) {
-  va_list ap;
-  va_start(ap, fmt);
-  vsnprintf(E->statusmsg, sizeof(E->statusmsg), fmt, ap);
-  va_end(ap);
-  E->statusmsg_time = time(NULL);
 }
 
 void renderScreen(editorConfig* E) {

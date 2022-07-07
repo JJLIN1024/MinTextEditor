@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "data.h"
 #include "dbg.h"
 #include "editor.h"
 #include "event.h"
@@ -37,6 +38,8 @@ int main(int argc, char** argv) {
 
   if (argc == 2) {
     editorOpen(&E, argv[1]);
+  } else {
+    insertRow(&E, E.cy, "", 1);
   }
 
   /* listen for Window Size change */

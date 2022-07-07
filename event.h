@@ -7,5 +7,7 @@
 
 int readInput(editorConfig*);
 void processEvent(editorConfig*);
+void setStatusMessage(editorConfig*, const char*, ...);
+char* promptInfo(editorConfig*, char*);
 
 #endif

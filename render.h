@@ -23,7 +23,6 @@ void bufferFree(buffer*);
 void renderRows(editorConfig*, buffer*);
 void renderStatusBar(editorConfig*, buffer*);
 void renderCursor(editorConfig*);
-void setStatusMessage(editorConfig*, const char*, ...);
 void renderMessageBar(editorConfig*, buffer*);
 void renderScreen(editorConfig*);
 
