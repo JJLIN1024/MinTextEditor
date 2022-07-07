@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -std=c99 -Wall
-objects = main.o terminal.o editor.o buffer.o
+objects = main.o terminal.o editor.o render.o event.o cursor.o data.o
 target = min
 
 all: $(target)
@@ -12,9 +12,13 @@ $(objects): dbg.h
 
 terminal.o: terminal.h editor.h
 
-editor.o: editor.h buffer.h
+editor.o: data.h editor.h
 
-buffer.o: buffer.h
+render.o: editor.h render.h
+
+event.o: editor.h event.h
+
+cursor.o: editor.h cursor.h
 
 clean:
 	rm $(target) $(objects)

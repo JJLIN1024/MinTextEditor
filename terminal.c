@@ -1,12 +1,11 @@
-#include "terminal.h"
-
 #include <stdlib.h>
 #include <unistd.h>
 
 #include "dbg.h"
 #include "editor.h"
+#include "terminal.h"
 
-void enableRawMode(struct termios *orig_termios) {
+void enableRawMode(struct termios* orig_termios) {
   check(tcgetattr(STDIN_FILENO, orig_termios) == -1, "enableRawMode");
   /* Save original terminal attribute for disableRawMode() to revert the
    * terminal back to its original state when the program ends. Config raw to
@@ -29,10 +28,14 @@ void enableRawMode(struct termios *orig_termios) {
   check(tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1, "enableRawMode");
 }
 
-void disableRawMode(struct termios *orig_termios) {
+void disableRawMode(struct termios* orig_termios) {
   check(tcsetattr(STDIN_FILENO, TCSAFLUSH, orig_termios) == -1,
         "disableRawMode");
 }
 
-void enableMouseEvent() { write(STDOUT_FILENO, "\e[?1000;1006;1015h", 24); };
-void disableMouseEvent() { write(STDOUT_FILENO, "\e[?1000;1006;1015l", 24); };
+void enableMouseEvent() {
+  write(STDOUT_FILENO, "\e[?1000;1006;1015h", 24);
+};
+void disableMouseEvent() {
+  write(STDOUT_FILENO, "\e[?1000;1006;1015l", 24);
+};

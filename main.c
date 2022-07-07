@@ -9,6 +9,8 @@
 
 #include "dbg.h"
 #include "editor.h"
+#include "event.h"
+#include "render.h"
 #include "terminal.h"
 
 editorConfig E;
@@ -18,12 +20,12 @@ some row content will be missing, after resizing */
 /* TODO: error handling */
 static void sigwinchHandler(int sig) {
   if (SIGWINCH == sig) {
-    getWindowSize(&E);
-    editorRefreshScreen(&E);
+    getWindowSize(&E.screenrows, &E.screencols);
+    renderScreen(&E);
   }
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   if (argc >= 3) {
     log_info("Usage: kilo <filename>(optional)");
   }
@@ -33,18 +35,18 @@ int main(int argc, char **argv) {
   initEditor(&E);
 
   if (argc == 2) {
-    editorOpen(argv[1], &E);
+    editorOpen(&E, argv[1]);
   }
 
   /* listen for Window Size change */
   signal(SIGWINCH, sigwinchHandler);
   // event polling ?
 
-  editorSetStatusMessage(&E, "HELP: Ctrl-Q = quit");
+  // setStatusMessage(&E, "HELP: Ctrl-S = save | Ctrl-Q = quit");
 
   while (1) {
-    editorRefreshScreen(&E);
-    editorProcessEvent(&E);
+    renderScreen(&E);
+    processEvent(&E);
   }
 
   // disableMouseEvent();

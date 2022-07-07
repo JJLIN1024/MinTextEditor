@@ -7,8 +7,8 @@
 
 struct termios orig_termios;
 
-void enableRawMode(struct termios *);
-void disableRawMode(struct termios *);
+void enableRawMode(struct termios*);
+void disableRawMode(struct termios*);
 void enableMouseEvent();
 void disableMouseEvent();
 #endif
