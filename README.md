@@ -11,11 +11,9 @@ This text editor is inspired by [kilo-tutorial](https://github.com/snaptoken/kil
 
 ## Features
 
-- [x] Adjust window size dynamically.
+- [x] Adjust window size dynamically
+- [ ] wide character support（中文）
+- [ ] special character support(e.g. TAB, Ctrl), actually this is a bug.
+- [ ] vim-like functionality
 - [ ] Mouse support
 
-## Bug
-
-- [ ] wrong line number displayed at the end of the file, say the number of lines in the displayed file is $n$, then when scrolling to the end of the file, the status bar will display $n+1/n$, which should be $n/n$.
-
-- [ ] some line will be missing when resizing editor window via mouse. resizing is implemented through signal listening(SIGWINCH).
