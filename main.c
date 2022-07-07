@@ -20,7 +20,11 @@ some row content will be missing, after resizing */
 /* TODO: error handling */
 static void sigwinchHandler(int sig) {
   if (SIGWINCH == sig) {
-    getWindowSize(&E.screenrows, &E.screencols);
+    char* filename = E.filename;
+    initEditor(&E);
+    if (filename != NULL) {
+      editorOpen(&E, filename);
+    }
     renderScreen(&E);
   }
 }
@@ -40,9 +44,8 @@ int main(int argc, char** argv) {
 
   /* listen for Window Size change */
   signal(SIGWINCH, sigwinchHandler);
-  // event polling ?
 
-  // setStatusMessage(&E, "HELP: Ctrl-S = save | Ctrl-Q = quit");
+  setStatusMessage(&E, "HELP: Ctrl-S = save | Ctrl-Q = quit");
 
   while (1) {
     renderScreen(&E);

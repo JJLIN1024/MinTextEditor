@@ -30,8 +30,8 @@ void scrollScreen(editorConfig* E) {
   if (E->cx < E->coloff) {
     E->coloff = E->cx;
   }
-  if (E->cx >= E->coloff + E->screencols) {
-    E->coloff = E->cx - E->screencols + 1;
+  if (E->cx >= E->coloff + E->screencols - LINE_NUMBER_WIDTH) {
+    E->coloff = E->cx - E->screencols + LINE_NUMBER_WIDTH + 1;
   }
 }
 
@@ -40,7 +40,6 @@ void renderRows(editorConfig* E, buffer* buf) {
   of the file, fix it. e.g: 9/8 in the status bar.
   should be 8/8. Related: cx, numrows */
   int y;
-  int maxColLen = E->screencols - LINE_NUMBER_WIDTH;
   /* TODO: put more information into welcoming message, e.g.
    * help, how to quit..., see what vim & nvim does!! especially
    * when window size change or too small*/
@@ -55,7 +54,7 @@ void renderRows(editorConfig* E, buffer* buf) {
             snprintf(welcome, sizeof(welcome), "Min Editor v%s", MIN_VERSION);
         if (welcomeLen > E->screenrows)
           welcomeLen = E->screenrows;
-        int padding = (maxColLen - welcomeLen) / 2;
+        int padding = (E->screencols - welcomeLen) / 2;
         if (padding) {
           bufferAppend(buf, "~", 1);
         }
@@ -77,8 +76,8 @@ void renderRows(editorConfig* E, buffer* buf) {
       char lineNumber[10];
       int numberLen =
           snprintf(lineNumber, sizeof(lineNumber), "%d", filerow + 1);
-      int lineLen = LINE_NUMBER_WIDTH;
-      while (lineLen-- > numberLen + 1) {
+      int lineLen = LINE_NUMBER_DATA;
+      while (lineLen-- > numberLen) {
         bufferAppend(buf, " ", 1);
       }
       bufferAppend(buf, lineNumber, numberLen);
@@ -87,12 +86,12 @@ void renderRows(editorConfig* E, buffer* buf) {
 
       /* TODO: rightmost content are missing */
       /* adjust screencol and coloff */
-      int len = E->data[filerow].size - E->coloff;
-      if (len < 0)
-        len = 0;
-      if (len > E->screencols - LINE_NUMBER_WIDTH)
-        len = E->screencols - LINE_NUMBER_WIDTH;
-      bufferAppend(buf, &E->data[filerow].chars[E->coloff], len);
+      int rowDataLen = E->data[filerow].size - E->coloff;
+      if (rowDataLen < 0)
+        rowDataLen = 0;
+      if (rowDataLen > E->screencols - LINE_NUMBER_WIDTH)
+        rowDataLen = E->screencols - LINE_NUMBER_WIDTH;
+      bufferAppend(buf, &E->data[filerow].chars[E->coloff], rowDataLen);
     }
 
     bufferAppend(buf, "\x1b[K", 3); /* Erases from the current cursor position
@@ -127,14 +126,17 @@ void renderStatusBar(editorConfig* E, buffer* buf) {
 }
 
 void renderMessageBar(editorConfig* E, buffer* buf) {
-  // bufferAppend(buf, "\x1b[7m", 4);
   bufferAppend(buf, "\x1b[K", 3);
   int msglen = strlen(E->statusmsg);
   if (msglen > E->screencols)
     msglen = E->screencols;
   if (msglen && time(NULL) - E->statusmsg_time < 5)
     bufferAppend(buf, E->statusmsg, msglen);
-  // bufferAppend(buf, "\x1b[m", 3);
+}
+
+void renderCursor(editorConfig* E) {
+  E->rx = E->cx - E->coloff + 1 + LINE_NUMBER_WIDTH;
+  E->ry = E->cy - E->rowoff + 1;
 }
 
 void setStatusMessage(editorConfig* E, const char* fmt, ...) {
@@ -147,6 +149,7 @@ void setStatusMessage(editorConfig* E, const char* fmt, ...) {
 
 void renderScreen(editorConfig* E) {
   scrollScreen(E);
+  renderCursor(E);
 
   buffer buf = BUFFER_INIT;
   /* set cursor invisible to avoid flicker effect */
@@ -162,8 +165,7 @@ void renderScreen(editorConfig* E) {
 
   /* render cursor */
   char tmp[32];
-  snprintf(tmp, sizeof(tmp), "\x1b[%d;%dH", (E->cy - E->rowoff) + 1,
-           (E->cx - E->coloff) + 1);
+  snprintf(tmp, sizeof(tmp), "\x1b[%d;%dH", E->ry, E->rx);
   bufferAppend(&buf, tmp, strlen(tmp));
 
   /* set cursor to the corresponding shape

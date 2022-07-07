@@ -3,20 +3,23 @@
 
 #include "editor.h"
 
-// #define MIN_TAP_STOP 8
-// #define MIN_LINE_NUMBER_SECTION_LEN 5
+#define TAP_STOP 8
+
+int rowCxToRx(row*, int);
 
 void insertRow(editorConfig*, int, char*, size_t);
-int rowCxToRx(row*, int);
-void updatrow(row*);
-void frerow(row*);
 void delRow(editorConfig*, int);
+
 void rowInsertChar(editorConfig*, row*, int, int);
 void rowAppendString(editorConfig*, row*, char*, size_t);
 void rowDelChar(editorConfig*, row*, int);
+void freerow(row*);
+
 void insertChar(editorConfig*, int);
-void insertNewLine(editorConfig*);
 void delChar(editorConfig*);
+
+void insertNewLine(editorConfig*);
+
 char* rowsToString(editorConfig*, int*);
 
 #endif
