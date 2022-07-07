@@ -10,16 +10,13 @@
 void insertChar(editorConfig*, int);
 void insertRow(editorConfig*, int, char*, size_t);
 void rowInsertChar(editorConfig*, row*, int, int);
+void insertNewLine(editorConfig*);
 
-// void delRow(editorConfig*, int);
-
-// void rowAppendString(editorConfig*, row*, char*, size_t);
-// void rowDelChar(editorConfig*, row*, int);
-// void freerow(row*);
-
-// void delChar(editorConfig*);
-
-// void insertNewLine(editorConfig*);
+void deleteRow(editorConfig*, int);
+void rowAppendString(editorConfig*, row*, char*, size_t);
+void rowDelChar(editorConfig*, row*, int);
+void freerow(row*);
+void deleteChar(editorConfig*);
 
 char* rowsToString(editorConfig*, int*);
 

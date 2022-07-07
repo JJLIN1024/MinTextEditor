@@ -7,6 +7,7 @@
 #include "dbg.h"
 #include "editor.h"
 #include "event.h"
+#include "render.h"
 
 int readInput(editorConfig* E) {
   /* TODO: MacOS command key, now its control*/
@@ -96,15 +97,11 @@ void processEvent(editorConfig* E) {
         moveCursor(E, ARROW_RIGHT);
         break;
 
-      case '\r':
-        // editorInsertNewLine(E);
-        break;
-
       case CTRL_KEY('q'):
-        // if (E->dirty) {
-        //   editorSetStatusMessage(E, "Unsave change, press Ctrl-E to force
-        //   quit."); return;
-        // }
+        if (E->dirty) {
+          setStatusMessage(E, "Unsave change, press Ctrl-E to force quit.");
+          return;
+        }
         write(STDOUT_FILENO, "\x1b[2J", 4);
         write(STDOUT_FILENO, "\x1b[H", 3);
         exit(0);
@@ -129,13 +126,6 @@ void processEvent(editorConfig* E) {
           E->cx = E->data[E->cy].size - 1;
         }
         break;
-      case BACKSPACE:
-      case CTRL_KEY('h'):
-      case DEL_KEY:
-        // if (c == DEL_KEY)
-        //   moveCursor(ARROW_RIGHT, E);
-        // editorDelChar(E);
-        break;
 
       case ARROW_UP:
       case ARROW_DOWN:
@@ -155,11 +145,21 @@ void processEvent(editorConfig* E) {
         E->mode = NORMAL_MODE;
         break;
       }
+      case '\r':
+        insertNewLine(E);
+        break;
       case ARROW_UP:
       case ARROW_DOWN:
       case ARROW_LEFT:
       case ARROW_RIGHT:
         moveCursor(E, c);
+        break;
+      case BACKSPACE:
+      case CTRL_KEY('h'):
+      case DEL_KEY:
+        if (c == DEL_KEY)
+          moveCursor(E, ARROW_RIGHT);
+        deleteChar(E);
         break;
       default:
         insertChar(E, c);

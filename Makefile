@@ -16,7 +16,7 @@ editor.o: data.h render.h editor.h
 
 render.o: editor.h render.h
 
-event.o: editor.h data.h cursor.h event.h
+event.o: editor.h data.h cursor.h render.h event.h
 
 cursor.o: editor.h cursor.h
 

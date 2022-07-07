@@ -6,8 +6,6 @@
 
 /* Data Buffer */
 typedef struct row {
-  int rsize;
-  char* render;
   int size;
   char* chars;
 } row;
