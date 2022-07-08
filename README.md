@@ -9,11 +9,18 @@ This text editor is inspired by [kilo-tutorial](https://github.com/snaptoken/kil
 3. `make`
 4. `./min <file to open>`, `<file to open>` is optional.
 
-## Features
+## Features & Future Goals
 
-- [x] Adjust window size dynamically
+- [x] adjust window size dynamically
+- [ ] vim-like functionality(mainly navigation)
 - [ ] wide character support（中文）
-- [ ] special character support(e.g. TAB, Ctrl), actually this is a bug.
-- [ ] vim-like functionality
+- [ ] hybrid data structure(array/rope/gap buffer)
+- [ ] file tree
+- [ ] fuzzy search
+- [ ] regex replace(all)
+- [ ] split view
 - [ ] Mouse support
 
+## Bugs
+
+- [ ] insert special character (e.g. TAB, Ctrl)
