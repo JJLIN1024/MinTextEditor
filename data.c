@@ -24,6 +24,31 @@ void insertRow(editorConfig* E, int at, char* s, size_t len) {
   E->dirty++;
 }
 
+void updateRow(editorConfig* E, row* row) {
+  int tabs = 0;
+  int j;
+  for (j = 0; j < row->size; j++) {
+    if (row->chars[j] == '\t')
+      tabs++;
+  }
+
+  free(row->render);
+  row->render = malloc(row->size + tabs * (TAB_WIDTH - 1) + 1);
+
+  int idx = 0;
+  for (j = 0; j < row->size; j++) {
+    if (row->chars[j] == '\t') {
+      row->render[idx++] = ' ';
+      while (idx % TAB_WIDTH != 0)
+        row->render[idx++] = ' ';
+    } else {
+      row->render[idx++] = row->chars[j];
+    }
+  }
+  row->render[idx] = '\0';
+  row->rsize = idx;
+}
+
 void insertNewLine(editorConfig* E) {
   if (E->cx == 0) {
     insertRow(E, E->cy, "", 0);

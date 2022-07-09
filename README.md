@@ -12,7 +12,11 @@ This text editor is inspired by [kilo-tutorial](https://github.com/snaptoken/kil
 ## Features & Future Goals
 
 - [x] adjust window size dynamically
+- [ ] add unit test
+- [ ] syntax highlight support for C, python, cpp
+- [ ] add CI/CD, test support for Linux & Windows
 - [ ] vim-like functionality(mainly navigation)
+- [ ] hightlight current cursor row
 - [ ] wide character support（中文）
 - [ ] hybrid data structure(array/rope/gap buffer)
 - [ ] file tree
