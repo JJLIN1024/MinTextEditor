@@ -64,6 +64,7 @@ void insertNewLine(editorConfig* E) {
     row->size = E->cx;
     row->chars[row->size] = '\0';
   }
+  updateRow(E, &E->data[E->cy]);
   E->cy++;
   E->cx = 0;
 }
@@ -83,6 +84,7 @@ void insertChar(editorConfig* E, int c) {
     insertRow(E, E->numrows, "", 0);
   }
   rowInsertChar(E, &E->data[E->cy], E->cx, c);
+  updateRow(E, &E->data[E->cy]);
   E->cx++;
 }
 
@@ -105,6 +107,7 @@ void rowAppendString(editorConfig* E, row* row, char* s, size_t len) {
   memcpy(&row->chars[row->size], s, len);
   row->size += len;
   row->chars[row->size] = '\0';
+  updateRow(E, row);
   E->dirty++;
 }
 
@@ -113,6 +116,7 @@ void rowdeleteChar(editorConfig* E, row* row, int at) {
     return;
   memmove(&row->chars[at], &row->chars[at + 1], row->size - at);
   row->size--;
+  updateRow(E, row);
   E->dirty++;
 }
 
