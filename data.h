@@ -5,12 +5,13 @@
 
 /* TODO: VIM-like normal mode jumping
 e.g. w for word jump */
-// #define TAP_STOP 8
+#define TAB_WIDTH 4
 
 // int rowCxToRx(row*, int);
 
 void insertChar(editorConfig*, int);
 void insertRow(editorConfig*, int, char*, size_t);
+void updateRow(editorConfig*, row*);
 void rowInsertChar(editorConfig*, row*, int, int);
 void insertNewLine(editorConfig*);
 

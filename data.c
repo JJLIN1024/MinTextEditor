@@ -17,6 +17,11 @@ void insertRow(editorConfig* E, int at, char* s, size_t len) {
   memcpy(E->data[at].chars, s, len);
   E->data[at].chars[len] = '\0';
 
+  /* For render TAB */
+  E->data[at].rsize = 0;
+  E->data[at].render = NULL;
+  updateRow(E, &E->data[at]);
+
   E->numrows++;
   /* TODO: how dirty this file is?
   maybe write it back when dirtyness

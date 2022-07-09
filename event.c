@@ -20,6 +20,15 @@ int readInput(editorConfig* E) {
     check(rc == -1 && errno != EAGAIN, "read from input fail");
   }
 
+  /* TODO: vim & nvim v.s. Vscode
+  TAB behavior seems different, in vim,
+  TAB in every file is a TAB, cursor will move
+  to the next TAB STOP, but in Vscode, this behavior
+  is observed only in Makefile type of file. */
+  // if (c == '\t') {
+  //   return TAB;
+  // }
+
   if (c == '\x1b') {
     char seq[3];
     if (read(STDIN_FILENO, &seq[0], 1) != 1)
@@ -144,10 +153,9 @@ void processEvent(editorConfig* E) {
     }
   } else if (E->mode == INSERT_MODE) {
     switch (c) {
-      case '\x1b': {
+      case '\x1b':
         E->mode = NORMAL_MODE;
         break;
-      }
       case '\r':
         insertNewLine(E);
         break;

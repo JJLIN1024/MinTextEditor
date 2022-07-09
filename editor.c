@@ -16,8 +16,10 @@ void initEditor(editorConfig* E) {
   E->mode = NORMAL_MODE;
   E->cx = 0;
   E->cy = 0;
-  E->rx = 1;
-  E->ry = 1;
+  E->rx = 0;
+  E->ry = 0;
+  E->tx = 1;
+  E->ty = 1;
   E->data = NULL;
   E->dirty = 0;
   E->numrows = 0;

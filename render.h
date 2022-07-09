@@ -22,6 +22,7 @@ void bufferFree(buffer*);
 
 void renderRows(editorConfig*, buffer*);
 void renderStatusBar(editorConfig*, buffer*);
+int rowCxToRx(row*, int);
 void renderCursor(editorConfig*);
 void renderMessageBar(editorConfig*, buffer*);
 void renderScreen(editorConfig*);

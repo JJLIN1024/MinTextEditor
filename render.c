@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "data.h"
 #include "dbg.h"
 #include "render.h"
 
@@ -18,18 +19,35 @@ void bufferFree(buffer* buf) {
   free(buf->start);
 }
 
+int rowCxToRx(row* row, int cx) {
+  int rx = 0;
+  int j;
+  for (j = 0; j < cx; j++) {
+    if (row->chars[j] == '\t')
+      rx += (TAB_WIDTH - 1) - (rx % TAB_WIDTH);
+    rx++;
+  }
+  return rx;
+}
+
 void scrollScreen(editorConfig* E) {
-  if (E->cy < E->rowoff) {
-    E->rowoff = E->cy;
+  E->rx = 1;
+  if (E->cy < E->numrows) {
+    E->rx = rowCxToRx(&E->data[E->cy], E->cx);
   }
-  if (E->cy >= E->rowoff + E->screenrows) {
-    E->rowoff = E->cy - E->screenrows + 1;
+  E->ry = E->cy;
+
+  if (E->ry < E->rowoff) {
+    E->rowoff = E->ry;
   }
-  if (E->cx < E->coloff) {
-    E->coloff = E->cx;
+  if (E->ry >= E->rowoff + E->screenrows) {
+    E->rowoff = E->ry - E->screenrows + 1;
   }
-  if (E->cx >= E->coloff + E->screencols - LINE_NUMBER_WIDTH) {
-    E->coloff = E->cx - E->screencols + LINE_NUMBER_WIDTH + 1;
+  if (E->rx < E->coloff) {
+    E->coloff = E->rx;
+  }
+  if (E->rx >= E->coloff + E->screencols - LINE_NUMBER_WIDTH) {
+    E->coloff = E->rx - E->screencols + LINE_NUMBER_WIDTH + 1;
   }
 }
 
@@ -76,12 +94,12 @@ void renderRows(editorConfig* E, buffer* buf) {
 
       /* TODO: rightmost content are missing */
       /* adjust screencol and coloff */
-      int rowDataLen = E->data[filerow].size - E->coloff;
+      int rowDataLen = E->data[filerow].rsize - E->coloff;
       if (rowDataLen < 0)
         rowDataLen = 0;
       if (rowDataLen > E->screencols - LINE_NUMBER_WIDTH)
         rowDataLen = E->screencols - LINE_NUMBER_WIDTH;
-      bufferAppend(buf, &E->data[filerow].chars[E->coloff], rowDataLen);
+      bufferAppend(buf, &E->data[filerow].render[E->coloff], rowDataLen);
     }
 
     bufferAppend(buf, "\x1b[K", 3); /* Erases from the current cursor position
@@ -125,8 +143,8 @@ void renderMessageBar(editorConfig* E, buffer* buf) {
 }
 
 void renderCursor(editorConfig* E) {
-  E->rx = E->cx - E->coloff + 1 + LINE_NUMBER_WIDTH;
-  E->ry = E->cy - E->rowoff + 1;
+  E->tx = E->rx - E->coloff + 1 + LINE_NUMBER_WIDTH;
+  E->ty = E->ry - E->rowoff + 1;
 }
 
 void renderScreen(editorConfig* E) {
@@ -147,7 +165,7 @@ void renderScreen(editorConfig* E) {
 
   /* render cursor */
   char tmp[32];
-  snprintf(tmp, sizeof(tmp), "\x1b[%d;%dH", E->ry, E->rx);
+  snprintf(tmp, sizeof(tmp), "\x1b[%d;%dH", E->ty, E->tx);
   bufferAppend(&buf, tmp, strlen(tmp));
 
   /* set cursor to the corresponding shape

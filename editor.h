@@ -8,12 +8,15 @@
 typedef struct row {
   int size;
   char* chars;
+  int rsize;
+  char* render;
 } row;
 
 typedef struct editorConfig {
   int mode;   /* VIM-like: normal, insert, visual*/
   int cx, cy; /* (x, y) on data, 0 based */
-  int rx, ry; /* (x, y) on screen(terminal), 1 based */
+  int rx, ry; /* (x, y) after rendering data(e.g. render TAB, etc.), 0 based */
+  int tx, ty; /* (x, y) on screen(terminal), 1 based */
   int rowoff; /* data row number of the first row on screen */
   int coloff; /* data column number of the first column on screen */
   int screenrows;
@@ -28,6 +31,7 @@ typedef struct editorConfig {
 } editorConfig;
 
 enum event {
+  TAB = 9,
   BACKSPACE = 127,
   ARROW_LEFT = 1000,
   ARROW_RIGHT,
