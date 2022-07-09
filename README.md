@@ -12,6 +12,7 @@ This text editor is inspired by [kilo-tutorial](https://github.com/snaptoken/kil
 ## Features & Future Goals
 
 - [x] adjust window size dynamically
+- [ ] cursor movement support: UP & DOWN alignment when row involves TAB
 - [ ] add unit test
 - [ ] syntax highlight support for C, python, cpp
 - [ ] add CI/CD, test support for Linux & Windows
@@ -25,6 +26,3 @@ This text editor is inspired by [kilo-tutorial](https://github.com/snaptoken/kil
 - [ ] split view
 - [ ] Mouse support
 
-## Bugs
-
-- [ ] insert special character (e.g. TAB, Ctrl)
