@@ -111,7 +111,8 @@ void processEvent(editorConfig* E) {
         replaceChar(E, next);
         break;
       }
-
+      case 'o':
+      case 'O':
       case '1':
       case '2':
       case '3':
@@ -126,7 +127,7 @@ void processEvent(editorConfig* E) {
       case '/':
         processNormalCommand(E, c);
         break;
-      case CTRL('f'):
+      case CTRL_KEY('f'):
         break;
       case 'x':
         moveCursor(E, ARROW_RIGHT);
