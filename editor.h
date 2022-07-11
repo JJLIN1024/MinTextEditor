@@ -51,9 +51,11 @@ enum event {
 enum editorMode { NORMAL_MODE = 0, INSERT_MODE, VISUAL_MODE };
 
 void initEditor(editorConfig*);
+void updateEditor(editorConfig*);
 int getCursorPosition(int*, int*);
 int getWindowSize(int*, int*);
 void editorOpen(editorConfig*, char*);
 void editorSave(editorConfig*);
+void editorQuit(editorConfig*);
 
 #endif

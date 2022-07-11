@@ -138,6 +138,17 @@ void deleteChar(editorConfig* E) {
   }
 }
 
+void changeWord(editorConfig* E) { /* regex */
+  ;
+}
+
+void deleteWord(editorConfig* E) {
+  ;
+}
+
+void replaceChar(editorConfig* E, int ch) {
+  ;
+}
 char* rowsToString(editorConfig* E, int* buflen) {
   int totlen = 0;
   int j;

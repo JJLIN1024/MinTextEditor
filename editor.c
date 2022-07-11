@@ -36,6 +36,11 @@ void initEditor(editorConfig* E) {
   E->screenrows -= 2;
 }
 
+void updateEditor(editorConfig* E) {
+  check(getWindowSize(&E->screenrows, &E->screencols) == -1, "getWindowSize");
+  E->screenrows -= 2;
+}
+
 int getCursorPosition(int* rows, int* cols) {
   char buf[32];
   unsigned int i = 0;
@@ -126,4 +131,15 @@ void editorSave(editorConfig* E) {
   }
   free(buf);
   setStatusMessage(E, "Can't save! I/O error: %s", strerror(errno));
+}
+
+void editorQuit(editorConfig* E) {
+  if (E->dirty) {
+    setStatusMessage(E,
+                     "Unsave change. :w <filename> -> save; :q! -> force quit");
+    return;
+  }
+  write(STDOUT_FILENO, "\x1b[2J", 4);
+  write(STDOUT_FILENO, "\x1b[H", 3);
+  exit(0);
 }

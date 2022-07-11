@@ -18,11 +18,7 @@ editorConfig E;
 
 static void sigwinchHandler(int sig) {
   if (SIGWINCH == sig) {
-    char* filename = E.filename;
-    initEditor(&E);
-    if (filename != NULL) {
-      editorOpen(&E, filename);
-    }
+    updateEditor(&E);
     renderScreen(&E);
   }
 }

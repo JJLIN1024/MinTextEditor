@@ -21,6 +21,10 @@ void rowDelChar(editorConfig*, row*, int);
 void freerow(row*);
 void deleteChar(editorConfig*);
 
+void changeWord(editorConfig*);
+void deleteWord(editorConfig*);
+void replaceChar(editorConfig*, int);
+
 char* rowsToString(editorConfig*, int*);
 
 #endif
