@@ -21,7 +21,7 @@ This text editor is inspired by [kilo-tutorial](https://github.com/snaptoken/kil
 - `G`: scroll to the buttom
 - `0`/`HOME`: move cursor to the start of the line
 - `$`/`END`: move cursor to the end of the line
-- ← → ↑ ↓: move cursor to the left/right/up/down
+- `←`/`→`/`↑`/`↓`: move cursor to the left/right/up/down
 - `h`/`l`/`k`/`j`: move cursor to the left/right/up/down
 
 
