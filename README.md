@@ -17,19 +17,32 @@ This text editor is inspired by [kilo-tutorial](https://github.com/snaptoken/kil
 ### Normal Mode
 
 - `i`: enter **Insert Mode**
+- `x`: delete character where the cursor currently at
 - `gg`: scroll to the top
 - `G`: scroll to the buttom
+- `zz`: center the cursor
 - `0`/`HOME`: move cursor to the start of the line
 - `$`/`END`: move cursor to the end of the line
 - `←`/`→`/`↑`/`↓`: move cursor to the left/right/up/down
 - `h`/`l`/`k`/`j`: move cursor to the left/right/up/down
-
-
+- `/<search pattern>`: search
+- `:<command>`: below are supported commands
+    - `w`: save file
+    - `q`: quit
+    - `wq`: save file and then quit
+    - `q!`: force quit
 ### Insert Mode
+
+Insert Mode works just like normal text editor, simply insert text & delete text, use arrow keys to move around.
+
+- `<Esc>`/`jk`/`jj`: enter **Normal Mode**
+
+
 
 ## Features & Future Goals
 
 - [x] adjust window size dynamically
+- [ ] visual mode/ copy and paste
 - [ ] cursor movement support: UP & DOWN alignment when row involves TAB
 - [ ] add unit test
 - [ ] syntax highlight support for C, python, cpp
