@@ -21,6 +21,7 @@ void initEditor(editorConfig* E) {
   E->tx = 1;
   E->ty = 1;
   E->data = NULL;
+  E->keyStroke = ' ';
   E->dirty = 0;
   E->numrows = 0;
   E->rowoff = 0;
@@ -28,7 +29,7 @@ void initEditor(editorConfig* E) {
   E->filename = NULL;
   E->statusmsg[0] = '\0';
   E->statusmsg_time = 0;
-
+  E->keystroke_time = 0;
   check(getWindowSize(&E->screenrows, &E->screencols) == -1, "getWindowSize");
 
   /* for status bar */

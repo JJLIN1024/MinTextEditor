@@ -13,32 +13,27 @@
 #include "render.h"
 
 int readInput(editorConfig* E) {
-  /* TODO: MacOS command key, now its control*/
+  /* TODO: MacOS command key, in linux it's Ctrl*/
   char c;
   int rc;
   while ((rc = read(STDIN_FILENO, &c, 1)) != 1) {
     check(rc == -1 && errno != EAGAIN, "read from input fail");
   }
 
-  /* TODO: vim & nvim v.s. Vscode
-  TAB behavior seems different, in vim,
-  TAB in every file is a TAB, cursor will move
-  to the next TAB STOP, but in Vscode, this behavior
-  is observed only in Makefile type of file. */
-  // if (c == '\t') {
-  //   return TAB;
-  // }
-
   if (c == '\x1b') {
     char seq[3];
-    if (read(STDIN_FILENO, &seq[0], 1) != 1)
+    if (read(STDIN_FILENO, &seq[0], 1) != 1) {
       return '\x1b';
-    if (read(STDIN_FILENO, &seq[1], 1) != 1)
+    }
+    if (read(STDIN_FILENO, &seq[1], 1) != 1) {
       return '\x1b';
+    }
     if (seq[0] == '[') {
       if (seq[1] >= '0' && seq[1] <= '9') {
-        if (read(STDIN_FILENO, &seq[2], 1) != 1)
+        if (read(STDIN_FILENO, &seq[2], 1) != 1) {
           return '\x1b';
+        }
+
         if (seq[2] == '~') {
           switch (seq[1]) {
             case '1':
@@ -48,7 +43,6 @@ int readInput(editorConfig* E) {
             case '4':
               return END_KEY;
             case '5':
-              /* TODO: implement MacOS & Linux support */
               return PAGE_UP;
             case '6':
               return PAGE_DOWN;
@@ -89,7 +83,13 @@ int readInput(editorConfig* E) {
 }
 
 void processEvent(editorConfig* E) {
+  int number = 1;
   int c = readInput(E);
+
+  char prevKeyStroke = E->keyStroke;
+  E->keyStroke = (char)c;
+  time_t prevKeystrokeTime = E->keystroke_time;
+  E->keystroke_time = time(NULL);
 
   if (E->mode == NORMAL_MODE) {
     switch (c) {
@@ -108,7 +108,37 @@ void processEvent(editorConfig* E) {
       case 'l':
         moveCursor(E, ARROW_RIGHT);
         break;
-
+      /* gg to the top */
+      case 'g':
+        if (prevKeyStroke == 'g' &&
+            (E->keystroke_time - prevKeystrokeTime) < KEY_TIMEOUT) {
+          E->cy = 0;
+          if (E->cx > E->data[E->cy].size - 1) {
+            E->cx = E->data[E->cy].size - 1;
+          }
+        }
+        break;
+      /* to the buttom */
+      case 'G':
+        E->cy = E->numrows - 1;
+        if (E->cx > E->data[E->cy].size - 1) {
+          E->cx = E->data[E->cy].size - 1;
+        }
+        break;
+      case 'z':
+        if (prevKeyStroke == 'z' &&
+            (E->keystroke_time - prevKeystrokeTime) < KEY_TIMEOUT) {
+          int diff = (E->cy - E->rowoff) - (E->screenrows / 2);
+          if ((diff > 0) && (E->rowoff + diff < E->numrows)) {
+            E->rowoff += diff;
+          } else if ((diff < 0) && (E->rowoff + diff > 0)) {
+            E->rowoff += diff;
+          }
+        }
+        break;
+      case '\r':
+        insertNewLine(E);
+        break;
       case CTRL_KEY('q'):
         if (E->dirty) {
           setStatusMessage(E, "Unsave change, press Ctrl-E to force quit.");
@@ -129,10 +159,11 @@ void processEvent(editorConfig* E) {
         editorSave(E);
         break;
 
+      case '0':
       case HOME_KEY:
         E->cx = 0;
         break;
-
+      case '$':
       case END_KEY:
         if (E->cy < E->numrows) {
           E->cx = E->data[E->cy].size - 1;
@@ -143,7 +174,9 @@ void processEvent(editorConfig* E) {
       case ARROW_DOWN:
       case ARROW_LEFT:
       case ARROW_RIGHT:
-        moveCursor(E, c);
+        while (number--) {
+          moveCursor(E, c);
+        }
         break;
       case CTRL_KEY('l'):
         break;
@@ -156,9 +189,28 @@ void processEvent(editorConfig* E) {
       case '\x1b':
         E->mode = NORMAL_MODE;
         break;
-      case '\r':
-        insertNewLine(E);
-        break;
+      /* Better escape: jk to escape insert-mode, Esc is too far*/
+      case 'k':
+        if (prevKeyStroke == 'j' &&
+            (E->keystroke_time - prevKeystrokeTime) < KEY_TIMEOUT) {
+          deleteChar(E);
+          E->mode = NORMAL_MODE;
+          break;
+        } else {
+          insertChar(E, c);
+          break;
+        }
+      case 'j':
+        if (prevKeyStroke == 'j' &&
+            (E->keystroke_time - prevKeystrokeTime) < KEY_TIMEOUT) {
+          deleteChar(E);
+          E->mode = NORMAL_MODE;
+          break;
+        } else {
+          insertChar(E, c);
+          break;
+        }
+
       case ARROW_UP:
       case ARROW_DOWN:
       case ARROW_LEFT:
@@ -199,6 +251,7 @@ char* promptInfo(editorConfig* E, char* info) {
   while (1) {
     setStatusMessage(E, info, buf);
     renderScreen(E);
+
     int c = readInput(E);
     if (c == DEL_KEY || c == CTRL_KEY('h') || c == BACKSPACE) {
       if (buflen != 0)

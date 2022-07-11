@@ -4,6 +4,7 @@
 #include "editor.h"
 
 #define CTRL_KEY(k) ((k)&0x1f)
+#define KEY_TIMEOUT 0.5
 
 int readInput(editorConfig*);
 void processEvent(editorConfig*);

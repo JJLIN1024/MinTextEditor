@@ -24,9 +24,11 @@ typedef struct editorConfig {
   int numrows; /* number of rows read in from disk */
   row* data;   /* pointer of data read in from disk */
   int dirty;
+  char keyStroke;
   char* filename;
   char statusmsg[80];
   time_t statusmsg_time;
+  time_t keystroke_time;
   struct termios orig_termios; /* terminal(STDIN) attribute */
 } editorConfig;
 
