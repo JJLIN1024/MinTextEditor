@@ -16,12 +16,13 @@ This text editor is inspired by [kilo-tutorial](https://github.com/snaptoken/kil
 
 ### Normal Mode
 
-- i: enter **Insert Mode**
-- gg: scroll to the top
-- G: scroll to the buttom
-- 0/HOME: move cursor to the start of the line
-- $/END: move cursor to the end of the line
-- &#8592: move cursor to the right
+- `i`: enter **Insert Mode**
+- `gg`: scroll to the top
+- `G`: scroll to the buttom
+- `0`/`HOME`: move cursor to the start of the line
+- `$`/`END`: move cursor to the end of the line
+- ← → ↑ ↓: move cursor to the left/right/up/down
+- `h`/`l`/`k`/`j`: move cursor to the left/right/up/down
 
 
 ### Insert Mode
