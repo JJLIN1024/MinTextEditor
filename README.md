@@ -9,6 +9,23 @@ This text editor is inspired by [kilo-tutorial](https://github.com/snaptoken/kil
 3. `make`
 4. `./min <file to open>`, `<file to open>` is optional.
 
+## Support Keys
+
+### Non-Vim Keys
+
+
+### Normal Mode
+
+- i: enter **Insert Mode**
+- gg: scroll to the top
+- G: scroll to the buttom
+- 0/HOME: move cursor to the start of the line
+- $/END: move cursor to the end of the line
+- &#8592: move cursor to the right
+
+
+### Insert Mode
+
 ## Features & Future Goals
 
 - [x] adjust window size dynamically
