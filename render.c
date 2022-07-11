@@ -30,6 +30,20 @@ int rowCxToRx(row* row, int cx) {
   return rx;
 }
 
+int rowRxToCx(row* row, int rx) {
+  int cur_rx = 0;
+  int cx;
+  for (cx = 0; cx < row->size; cx++) {
+    if (row->chars[cx] == '\t') {
+      cur_rx += (TAB_WIDTH - 1) - (cur_rx % TAB_WIDTH);
+    }
+    cur_rx++;
+    if (cur_rx > rx)
+      return cx;
+  }
+  return cx;
+}
+
 void scrollScreen(editorConfig* E) {
   E->rx = 1;
   if (E->cy < E->numrows) {

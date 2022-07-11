@@ -143,3 +143,20 @@ void editorQuit(editorConfig* E) {
   write(STDOUT_FILENO, "\x1b[H", 3);
   exit(0);
 }
+
+void editorFind(editorConfig* E, char* query) {
+  for (int i = 0; i < E->numrows; i++) {
+    row* row = &E->data[i];
+    char* match = strstr(row->render, query);
+    if (match) {
+      E->cy = i;
+      E->cx = rowRxToCx(row, match - row->render);
+      E->rowoff = E->numrows;
+      break;
+    }
+  }
+}
+
+// void editorFindCallback(char* query, int key) {
+//   ;
+// }

@@ -123,7 +123,10 @@ void processEvent(editorConfig* E) {
       case '9':
         break;
       case ':':
+      case '/':
         processNormalCommand(E, c);
+        break;
+      case CTRL('f'):
         break;
       case 'x':
         moveCursor(E, ARROW_RIGHT);
@@ -270,8 +273,8 @@ void processNormalCommand(editorConfig* E, char c) {
   char* buf = malloc(bufsize);
 
   size_t buflen = 1;
-  buf[0] = ':';
-  buf[1] = '\0';
+  buf[0] = c;
+  buf[buflen] = '\0';
 
   while (1) {
     setStatusMessage(E, "%s", buf);
@@ -279,8 +282,14 @@ void processNormalCommand(editorConfig* E, char c) {
 
     int c = readInput(E);
     if (c == DEL_KEY || c == CTRL_KEY('h') || c == BACKSPACE) {
-      if (buflen != 0)
+      if (buflen != 0) {
         buf[--buflen] = '\0';
+        if (buflen == 0) {
+          setStatusMessage(E, "%s", "");
+          free(buf);
+          return;
+        }
+      }
     } else if (c == '\x1b') {
       setStatusMessage(E, "");
       free(buf);
@@ -305,6 +314,17 @@ void processNormalCommand(editorConfig* E, char c) {
           write(STDOUT_FILENO, "\x1b[2J", 4);
           write(STDOUT_FILENO, "\x1b[H", 3);
           exit(0);
+        } else if (buf[0] == '/') {
+          setStatusMessage(E, "");
+          int qlen = strlen(buf) - 1;
+          char* query = malloc(qlen);
+          memcpy(query, &buf[1], qlen);
+          query[qlen] = '\0';
+          editorFind(E, query);
+
+          free(buf);
+          free(query);
+          return;
         } else {
           setStatusMessage(E, "Unknown command");
           free(buf);
@@ -319,10 +339,6 @@ void processNormalCommand(editorConfig* E, char c) {
       }
       buf[buflen++] = c;
       buf[buflen] = '\0';
-    }
-    if (buflen == 0) {
-      free(buf);
-      return;
     }
   }
 }

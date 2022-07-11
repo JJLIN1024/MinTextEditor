@@ -57,5 +57,6 @@ int getWindowSize(int*, int*);
 void editorOpen(editorConfig*, char*);
 void editorSave(editorConfig*);
 void editorQuit(editorConfig*);
+void editorFind(editorConfig*, char*);
 
 #endif
