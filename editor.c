@@ -11,6 +11,7 @@
 #include "editor.h"
 #include "event.h"
 #include "render.h"
+#include "syntax.h"
 
 void initEditor(editorConfig* E) {
   E->mode = NORMAL_MODE;
@@ -152,6 +153,7 @@ void editorFind(editorConfig* E, char* query) {
   int saved_coloff = E->coloff;
   int saved_rowoff = E->rowoff;
 
+  editorFindAll(E, query);
   editorFindForward(E, query);
   while (1) {
     int c = readInput(E);
@@ -166,12 +168,36 @@ void editorFind(editorConfig* E, char* query) {
       break;
     }
   }
-
+  editorFindQuit(E, query);
   E->cx = saved_cx;
   E->cy = saved_cy;
   E->coloff = saved_coloff;
   E->rowoff = saved_rowoff;
   E->searchResultRow = -1;
+}
+
+void editorFindQuit(editorConfig* E, char* query) {
+  for (int i = 0; i < E->numrows; i++) {
+    row* row = &E->data[i];
+    char* match = strstr(row->render, query);
+    if (match) {
+      /* match highlight */
+      memset(&row->hl[match - row->render], HL_NORMAL, strlen(query));
+    }
+  }
+  renderScreen(E);
+}
+
+void editorFindAll(editorConfig* E, char* query) {
+  for (int i = 0; i < E->numrows; i++) {
+    row* row = &E->data[i];
+    char* match = strstr(row->render, query);
+    if (match) {
+      /* match highlight */
+      memset(&row->hl[match - row->render], HL_MATCH, strlen(query));
+    }
+  }
+  renderScreen(E);
 }
 
 void editorFindForward(editorConfig* E, char* query) {
@@ -188,6 +214,8 @@ void editorFindForward(editorConfig* E, char* query) {
       } else if ((diff < 0) && (E->rowoff + diff > 0)) {
         E->rowoff += diff;
       }
+      /* match highlight */
+      memset(&row->hl[match - row->render], HL_MATCH, strlen(query));
       renderScreen(E);
       break;
     }

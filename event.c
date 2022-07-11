@@ -326,6 +326,7 @@ void processNormalCommand(editorConfig* E, char c) {
           free(query);
           return;
         } else {
+          /* TODO: warning message should be red*/
           setStatusMessage(E, "Unknown command");
           free(buf);
           return;

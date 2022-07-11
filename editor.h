@@ -10,6 +10,7 @@ typedef struct row {
   char* chars;
   int rsize;
   char* render;
+  unsigned char* hl; /* syntax highlight */
 } row;
 
 typedef struct editorConfig {
@@ -59,6 +60,9 @@ int getWindowSize(int*, int*);
 void editorOpen(editorConfig*, char*);
 void editorSave(editorConfig*);
 void editorQuit(editorConfig*);
+/* use callback to lower time complexity */
+void editorFindAll(editorConfig*, char*);
+void editorFindQuit(editorConfig*, char*);
 void editorFind(editorConfig*, char*);
 void editorFindForward(editorConfig*, char*);
 void editorFindBackward(editorConfig*, char*);

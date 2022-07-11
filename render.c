@@ -5,6 +5,7 @@
 #include "data.h"
 #include "dbg.h"
 #include "render.h"
+#include "syntax.h"
 
 void bufferAppend(buffer* buf, const char* s, int len) {
   char* new = realloc(buf->start, buf->size + len);
@@ -106,14 +107,37 @@ void renderRows(editorConfig* E, buffer* buf) {
       bufferAppend(buf, "\x1b[m", 3);
       bufferAppend(buf, " ", LINE_NUMBER_PADDING);
 
-      /* TODO: rightmost content are missing */
-      /* adjust screencol and coloff */
+      /* Data section */
       int rowDataLen = E->data[filerow].rsize - E->coloff;
       if (rowDataLen < 0)
         rowDataLen = 0;
       if (rowDataLen > E->screencols - LINE_NUMBER_WIDTH)
         rowDataLen = E->screencols - LINE_NUMBER_WIDTH;
-      bufferAppend(buf, &E->data[filerow].render[E->coloff], rowDataLen);
+
+      char* data = &E->data[filerow].render[E->coloff];
+      unsigned char* hl = &E->data[filerow].hl[E->coloff];
+      int current_color = -1;
+      for (int j = 0; j < rowDataLen; j++) {
+        if (hl[j] == HL_NORMAL) {
+          if (current_color != -1) {
+            bufferAppend(buf, "\x1b[39m", 5);
+            current_color = -1;
+          }
+
+          bufferAppend(buf, &data[j], 1);
+        } else {
+          int color = syntaxToColor(hl[j]);
+          if (color != current_color) {
+            current_color = color;
+            char tmp[16];
+            int clen = snprintf(tmp, sizeof(tmp), "\x1b[%dm", color);
+            bufferAppend(buf, tmp, clen);
+          }
+
+          bufferAppend(buf, &data[j], 1);
+        }
+      }
+      bufferAppend(buf, "\x1b[39m", 5);
     }
 
     bufferAppend(buf, "\x1b[K", 3); /* Erases from the current cursor position

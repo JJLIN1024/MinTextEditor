@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "data.h"
+#include "syntax.h"
 
 /* TODO: use a more efficient data structure, e.g. gap buffer or rope(?), array
  * is too slow */
@@ -20,6 +21,8 @@ void insertRow(editorConfig* E, int at, char* s, size_t len) {
   /* For render TAB */
   E->data[at].rsize = 0;
   E->data[at].render = NULL;
+
+  E->data[at].hl = NULL;
   updateRow(E, &E->data[at]);
 
   E->numrows++;
@@ -52,6 +55,8 @@ void updateRow(editorConfig* E, row* row) {
   }
   row->render[idx] = '\0';
   row->rsize = idx;
+
+  updateSyntax(row);
 }
 
 void insertNewLine(editorConfig* E) {
@@ -90,6 +95,8 @@ void insertChar(editorConfig* E, int c) {
 
 void freerow(row* row) {
   free(row->chars);
+  free(row->render);
+  free(row->hl);
 }
 
 void deleteRow(editorConfig* E, int at) {
