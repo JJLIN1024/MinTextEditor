@@ -2,6 +2,11 @@
 
 This text editor is inspired by [kilo-tutorial](https://github.com/snaptoken/kilo-tutorial), this project follows Chromium coding styles using [clang-format](https://clang.llvm.org/docs/ClangFormatStyleOptions.html).
 
+## Support OS
+
+- Linux(Ubuntu)
+- MacOS
+
 ## Usage
 
 1. clone this repository into your desired location, e.g. `dir`.
