@@ -21,6 +21,8 @@ typedef struct editorConfig {
   int coloff; /* data column number of the first column on screen */
   int screenrows;
   int screencols;
+  int searchResultRow;
+  int searchResultCol;
   int numrows; /* number of rows read in from disk */
   row* data;   /* pointer of data read in from disk */
   int dirty;
@@ -58,5 +60,6 @@ void editorOpen(editorConfig*, char*);
 void editorSave(editorConfig*);
 void editorQuit(editorConfig*);
 void editorFind(editorConfig*, char*);
-
+void editorFindForward(editorConfig*, char*);
+void editorFindBackward(editorConfig*, char*);
 #endif

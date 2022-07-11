@@ -24,6 +24,8 @@ void initEditor(editorConfig* E) {
   E->keyStroke = ' ';
   E->dirty = 0;
   E->numrows = 0;
+  E->searchResultRow = -1;
+  E->searchResultCol = -1;
   E->rowoff = 0;
   E->coloff = 0;
   E->filename = NULL;
@@ -145,18 +147,69 @@ void editorQuit(editorConfig* E) {
 }
 
 void editorFind(editorConfig* E, char* query) {
-  for (int i = 0; i < E->numrows; i++) {
+  int saved_cx = E->cx;
+  int saved_cy = E->cy;
+  int saved_coloff = E->coloff;
+  int saved_rowoff = E->rowoff;
+
+  editorFindForward(E, query);
+  while (1) {
+    int c = readInput(E);
+    if (c == 'q') {
+      break;
+    } else if (c == 'n') {
+      editorFindForward(E, query);
+    } else if (c == 'p') {
+      editorFindBackward(E, query);
+    } else if (c == 'i') {
+      /* TODO: to insert mode */
+      break;
+    }
+  }
+
+  E->cx = saved_cx;
+  E->cy = saved_cy;
+  E->coloff = saved_coloff;
+  E->rowoff = saved_rowoff;
+  E->searchResultRow = -1;
+}
+
+void editorFindForward(editorConfig* E, char* query) {
+  for (int i = E->searchResultRow + 1; i < E->numrows; i++) {
     row* row = &E->data[i];
     char* match = strstr(row->render, query);
     if (match) {
+      E->searchResultRow = i;
       E->cy = i;
       E->cx = rowRxToCx(row, match - row->render);
-      E->rowoff = E->numrows;
+      int diff = (E->cy - E->rowoff) - (E->screenrows / 2);
+      if ((diff > 0) && (E->rowoff + diff < E->numrows)) {
+        E->rowoff += diff;
+      } else if ((diff < 0) && (E->rowoff + diff > 0)) {
+        E->rowoff += diff;
+      }
+      renderScreen(E);
       break;
     }
   }
 }
 
-// void editorFindCallback(char* query, int key) {
-//   ;
-// }
+void editorFindBackward(editorConfig* E, char* query) {
+  for (int i = E->searchResultRow - 1; i >= 0; i--) {
+    row* row = &E->data[i];
+    char* match = strstr(row->render, query);
+    if (match) {
+      E->searchResultRow = i;
+      E->cy = i;
+      E->cx = rowRxToCx(row, match - row->render);
+      int diff = (E->cy - E->rowoff) - (E->screenrows / 2);
+      if ((diff > 0) && (E->rowoff + diff < E->numrows)) {
+        E->rowoff += diff;
+      } else if ((diff < 0) && (E->rowoff + diff > 0)) {
+        E->rowoff += diff;
+      }
+      renderScreen(E);
+      break;
+    }
+  }
+}
