@@ -1,4 +1,3 @@
-CC = gcc
 CFLAGS = -std=c99 -Wall
 objects = main.o terminal.o editor.o render.o event.o cursor.o data.o syntax.o
 target = min
