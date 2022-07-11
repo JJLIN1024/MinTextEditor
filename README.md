@@ -12,10 +12,10 @@ This text editor is inspired by [kilo-tutorial](https://github.com/snaptoken/kil
 ## Support Keys
 
 ### Non-Vim Keys
-
+- `<Ctrl> + s`: save file
+- `<Ctrl> + q`: quit
 
 ### Normal Mode
-
 - `i`: enter **Insert Mode**
 - `x`: delete character where the cursor currently at
 - `gg`: scroll to the top
