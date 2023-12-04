@@ -2,17 +2,16 @@
 
 This text editor is inspired by [kilo-tutorial](https://github.com/snaptoken/kilo-tutorial), this project follows Chromium coding styles using [clang-format](https://clang.llvm.org/docs/ClangFormatStyleOptions.html).
 
-## Support OS
+## Prerequisite
 
-- Linux(Ubuntu)
-- MacOS
+1. Cmake
 
 ## Usage
 
 1. clone this repository into your desired location, e.g. `dir`.
 2. `cd dir`
-3. `make`
-4. `./min <file to open>`, `<file to open>` is optional.
+3. `cmake --build .`
+4. `./minTextEditor <file to open>`, `<file to open>` is optional.
 
 ## Support Keys
 
@@ -36,6 +35,7 @@ This text editor is inspired by [kilo-tutorial](https://github.com/snaptoken/kil
     - `q`: quit
     - `wq`: save file and then quit
     - `q!`: force quit
+ 
 ### Insert Mode
 
 Insert Mode works just like normal text editor, simply insert text & delete text, use arrow keys to move around.
