@@ -1,8 +1,5 @@
 #custome
-.vscode/
-min
-test.c
-test
+.vscode/*
 
 # Prerequisites
 *.d

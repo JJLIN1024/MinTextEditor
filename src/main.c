@@ -3,17 +3,13 @@
 #define _GNU_SOURCE
 
 #include <errno.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <signal.h>
 
-#include "data.h"
 #include "dbg.h"
 #include "editor.h"
-#include "event.h"
-#include "render.h"
-#include "terminal.h"
 
 editorConfig E;
 
@@ -29,8 +25,9 @@ int main(int argc, char** argv) {
     log_info("Usage: kilo <filename>(optional)");
   }
 
-  enableRawMode(&E.orig_termios);
   // enableMouseEvent();
+  enableRawMode(&E.orig_termios);
+
   initEditor(&E);
 
   if (argc == 2) {

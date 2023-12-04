@@ -1,4 +1,4 @@
-# KiloTextEditor
+# Min Text Editor
 
 This text editor is inspired by [kilo-tutorial](https://github.com/snaptoken/kilo-tutorial), this project follows Chromium coding styles using [clang-format](https://clang.llvm.org/docs/ClangFormatStyleOptions.html).
 
@@ -43,10 +43,10 @@ Insert Mode works just like normal text editor, simply insert text & delete text
 - `<Esc>`/`jk`/`jj`: enter **Normal Mode**
 
 
-
 ## Features & Future Goals
 
 - [x] adjust window size dynamically
+- [ ] ./vimrc customizations
 - [ ] visual mode/ copy and paste
 - [ ] cursor movement support: UP & DOWN alignment when row involves TAB
 - [ ] add unit test

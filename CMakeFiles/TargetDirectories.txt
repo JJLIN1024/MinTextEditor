@@ -1,0 +1,3 @@
+/Users/jimmylin/MinTextEditor/CMakeFiles/minTextEditor.dir
+/Users/jimmylin/MinTextEditor/CMakeFiles/edit_cache.dir
+/Users/jimmylin/MinTextEditor/CMakeFiles/rebuild_cache.dir
